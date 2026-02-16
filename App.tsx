@@ -42,39 +42,6 @@ const App: React.FC = () => {
   const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
 
-  // Fonction pour envoyer les données au webhook Make
-  const sendDataToWebhook = async (currentUser: User, currentScores: ScoreSet, persona: string) => {
-    // Calcul du profil dominant
-    const keys = Object.keys(currentScores) as (keyof ScoreSet)[];
-    const dominantKey = keys.reduce((a, b) => (currentScores[a] > currentScores[b] ? a : b));
-    
-    const payload = {
-      nom: currentUser.email.split('@')[0], // Extrait le nom de l'email
-      email: currentUser.email,
-      niveau_scolaire: persona,
-      profil_dominant: dominantKey,
-      scores_des_8_forces: currentScores
-    };
-
-    try {
-      const response = await fetch('https://hook.eu1.make.com/ke23stji62oucyfjltpioh9217gf2cqb', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        console.log("Données envoyées avec succès au webhook Make !");
-      } else {
-        console.error("Échec de l'envoi au webhook :", response.statusText);
-      }
-    } catch (error) {
-      console.error("Erreur réseau lors de l'envoi au webhook :", error);
-    }
-  };
-
   const startPersonaSelection = () => {
     setStep(AppStep.PersonaSelection);
   };
@@ -159,8 +126,6 @@ const App: React.FC = () => {
   const handleQuizFinish = (finalScores: ScoreSet) => {
     setScores(finalScores);
     if (user.isLoggedIn) {
-      // Si déjà connecté, on envoie les données directement
-      sendDataToWebhook(user, finalScores, selectedPersona || 'Inconnu');
       setStep(AppStep.Dashboard);
     } else {
       setStep(AppStep.AuthGate);
@@ -168,14 +133,7 @@ const App: React.FC = () => {
   };
 
   const handleLoginSuccess = (email: string) => {
-    const newUser = { email, isLoggedIn: true };
-    setUser(newUser);
-    
-    // Si des scores existent déjà (quiz fini avant login), on envoie les données
-    if (scores) {
-      sendDataToWebhook(newUser, scores, selectedPersona || 'Inconnu');
-    }
-    
+    setUser({ email, isLoggedIn: true });
     setStep(AppStep.Dashboard);
   };
 
