@@ -9,7 +9,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Bâtisseur de solutions : crée des applications robustes et scalables du serveur à l\'interface.',
     icon: 'Code2',
     skills: ['React/Node.js', 'Bases de données', 'Architecture', 'Git'],
-    salary: '500k - 2.0M CFA'
+    salary: '150k - 2.5M CFA'
   },
   {
     id: 'frontend-developer',
@@ -17,7 +17,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Artiste du code : sculpte des interfaces web fluides, réactives et visuellement impeccables.',
     icon: 'Monitor',
     skills: ['Tailwind CSS', 'TypeScript', 'Performance Web', 'Next.js'],
-    salary: '400k - 1.2M CFA'
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'backend-developer',
@@ -25,7 +25,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Ingénieur de l\'ombre : conçoit la logique complexe et les API qui propulsent les services.',
     icon: 'Server',
     skills: ['Python/Go', 'PostgreSQL', 'Microservices', 'Docker'],
-    salary: '450k - 1.8M CFA'
+    salary: '150k - 2.0M CFA'
   },
   {
     id: 'mobile-developer',
@@ -33,7 +33,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Architecte de poche : développe des expériences natives ou hybrides pour iOS et Android.',
     icon: 'Smartphone',
     skills: ['Flutter', 'React Native', 'Swift/Kotlin', 'UX Mobile'],
-    salary: '400k - 1.5M CFA'
+    salary: '150k - 1.8M CFA'
   },
   {
     id: 'cloud-architect',
@@ -41,7 +41,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Maître des nuages : orchestre des infrastructures virtuelles haute performance et sécurisées.',
     icon: 'Cloud',
     skills: ['AWS/GCP', 'Terraform', 'Kubernetes', 'Réseau'],
-    salary: '800k - 3.0M CFA'
+    salary: '250k - 3.5M CFA'
   },
   {
     id: 'devops-engineer',
@@ -49,7 +49,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Pont de l\'agilité : automatise les déploiements pour garantir une livraison continue sans faille.',
     icon: 'Zap',
     skills: ['CI/CD', 'Ansible', 'Monitoring', 'Linux'],
-    salary: '600k - 2.2M CFA'
+    salary: '200k - 2.5M CFA'
   },
   {
     id: 'qa-tester',
@@ -57,7 +57,15 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Chasseur de bugs : garantit la qualité irréprochable du produit via des tests automatisés.',
     icon: 'Bug',
     skills: ['Selenium', 'Cypress', 'Tests Unitaires', 'Agilité'],
-    salary: '350k - 900k CFA'
+    salary: '150k - 1.2M CFA'
+  },
+  {
+    id: 'sysadmin',
+    title: 'Administrateur Systèmes & Réseaux',
+    description: 'Gardien de l\'infrastructure : assure la disponibilité et la performance des outils internes.',
+    icon: 'Cpu',
+    skills: ['Linux/Windows Server', 'Cisco', 'Sécurité', 'Virtualisation'],
+    salary: '150k - 1.5M CFA'
   },
 
   // DATA & AI
@@ -67,7 +75,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Alchimiste de la donnée : convertit les chiffres bruts en décisions stratégiques claires.',
     icon: 'BarChart',
     skills: ['SQL', 'Python', 'DataViz', 'Statistiques'],
-    salary: '450k - 1.3M CFA'
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'data-scientist',
@@ -75,7 +83,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Oracle moderne : utilise les maths et le code pour prédire le futur et extraire de la valeur.',
     icon: 'BrainCircuit',
     skills: ['Deep Learning', 'Pandas', 'Statistiques', 'R'],
-    salary: '600k - 2.5M CFA'
+    salary: '250k - 3.0M CFA'
   },
   {
     id: 'ml-engineer',
@@ -83,7 +91,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Ingénieur du futur : entraîne des modèles d\'IA pour automatiser l\'intelligence à grande échelle.',
     icon: 'Brain',
     skills: ['TensorFlow', 'PyTorch', 'Model Ops', 'Python'],
-    salary: '700k - 3.5M CFA'
+    salary: '300k - 4.0M CFA'
   },
   {
     id: 'data-engineer',
@@ -91,7 +99,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Plombier de la donnée : construit les pipelines qui transportent la donnée en temps réel.',
     icon: 'Database',
     skills: ['Spark', 'Airflow', 'Kafka', 'Data Warehousing'],
-    salary: '550k - 2.0M CFA'
+    salary: '200k - 2.5M CFA'
   },
 
   // DESIGN & CREATIVE
@@ -101,7 +109,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Architecte de l\'expérience : conçoit des interfaces intuitives qui résolvent des problèmes réels.',
     icon: 'Palette',
     skills: ['UI/UX', 'Figma', 'Prototypage', 'User Testing'],
-    salary: '400k - 1.1M CFA'
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'ui-designer',
@@ -109,7 +117,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Esthète du pixel : sublime l\'identité visuelle et l\'ergonomie graphique des interfaces.',
     icon: 'Layers',
     skills: ['Design Visuel', 'Design System', 'Adobe CC', 'Iconographie'],
-    salary: '350k - 1.0M CFA'
+    salary: '150k - 1.2M CFA'
   },
   {
     id: 'ux-researcher',
@@ -117,7 +125,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Explorateur d\'empathie : décode les besoins profonds pour orienter le design stratégique.',
     icon: 'Search',
     skills: ['Interviews', 'Analyse', 'Psychologie', 'Usability'],
-    salary: '400k - 1.2M CFA'
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'motion-designer',
@@ -125,7 +133,15 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Magicien du mouvement : donne vie aux interfaces via des animations et micro-interactions.',
     icon: 'Play',
     skills: ['After Effects', 'Lottie', 'Storyboarding', 'Video'],
-    salary: '350k - 950k CFA'
+    salary: '150k - 1.3M CFA'
+  },
+  {
+    id: 'graphic-designer',
+    title: 'Graphiste Multi-support',
+    description: 'Créateur d\'univers : définit l\'identité visuelle des marques sur tous les supports.',
+    icon: 'Image',
+    skills: ['Photoshop', 'Illustrator', 'Branding', 'Print'],
+    salary: '150k - 1.0M CFA'
   },
 
   // PRODUCT & MANAGEMENT
@@ -135,7 +151,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Chef d\'orchestre stratégique : définit la vision produit et priorise l\'impact.',
     icon: 'Package',
     skills: ['User Stories', 'Agilité', 'Roadmap', 'Priorisation'],
-    salary: '600k - 1.8M CFA'
+    salary: '250k - 2.5M CFA'
   },
   {
     id: 'scrum-master',
@@ -143,7 +159,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Facilitateur d\'élite : lève les obstacles pour doper la productivité des équipes agiles.',
     icon: 'Timer',
     skills: ['Scrum', 'Kanban', 'Coaching', 'Communication'],
-    salary: '500k - 1.4M CFA'
+    salary: '200k - 1.8M CFA'
   },
   {
     id: 'cybersecurity-expert',
@@ -151,7 +167,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Gardien numérique : anticipe les menaces et blinde l\'intégrité des infrastructures.',
     icon: 'ShieldAlert',
     skills: ['Pentesting', 'Firewalls', 'Cryptographie', 'Audit'],
-    salary: '600k - 2.5M CFA'
+    salary: '300k - 3.5M CFA'
   },
 
   // BUSINESS & MARKETING
@@ -161,7 +177,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Moteur de croissance : identifie et scelle les partenariats qui propulsent l\'entreprise.',
     icon: 'Briefcase',
     skills: ['Prospection', 'Pitch', 'Closing', 'Stratégie'],
-    salary: '400k - 1.5M CFA'
+    salary: '150k - 2.0M CFA'
   },
   {
     id: 'growth-hacker',
@@ -169,7 +185,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Ingénieur de l\'acquisition : pirate les canaux de croissance via la data et l\'expérimentation.',
     icon: 'Zap',
     skills: ['Ads', 'Automation', 'SEO/SEA', 'Copywriting'],
-    salary: '400k - 1.0M CFA'
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'community-manager',
@@ -177,7 +193,15 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Voix de la marque : anime les réseaux et fédère des communautés engagées au quotidien.',
     icon: 'Share2',
     skills: ['Copywriting', 'Analytics', 'Publicité', 'Creativity'],
-    salary: '250k - 700k CFA'
+    salary: '150k - 1.0M CFA'
+  },
+  {
+    id: 'seo-specialist',
+    title: 'SEO Specialist',
+    description: 'Maître de la visibilité : positionne les sites en tête des moteurs de recherche.',
+    icon: 'TrendingUp',
+    skills: ['SEO Technique', 'Contenu', 'Backlinks', 'Google Analytics'],
+    salary: '150k - 1.5M CFA'
   },
   {
     id: 'customer-success',
@@ -185,7 +209,7 @@ export const TECH_ROLES: TechRole[] = [
     description: 'Garant de la valeur : s\'assure que chaque utilisateur atteint ses objectifs avec le produit.',
     icon: 'HeartHandshake',
     skills: ['Onboarding', 'Empathie', 'Support', 'Analyse Churn'],
-    salary: '350k - 900k CFA'
+    salary: '150k - 1.2M CFA'
   }
 ];
 
@@ -361,7 +385,7 @@ export const PROFILES: Record<string, Profile> = {
       { title: "CEO / Fondateur", match: 88, description: "Architecte d'organisations : transforme une idée en réalité scalable." },
       { title: "Consultant Stratégie", match: 82, description: "Navigateur du changement : guide les entreprises vers l'excellence numérique." }
     ],
-    salaryRange: "400.000 - 1.500.000 CFA / mois",
+    salaryRange: "250.000 - 2.500.000 CFA / mois",
     roadmap: [
       { year: 1, goal: "Compétences Business", milestones: ["Veille concurrentielle", "Lean Startup", "Anglais"] },
       { year: 2, goal: "Leadership", milestones: ["Management d'équipe", "Public Speaking", "Finance"] },
@@ -372,11 +396,11 @@ export const PROFILES: Record<string, Profile> = {
     name: "L'Architecte Technophile",
     description: "Votre force réside dans votre capacité à construire des systèmes complexes et robustes.",
     jobs: [
-      { title: "Software Engineer", match: 98, description: "Forgeron du code : conçoit et maintient le coeur battant des applications." },
-      { title: "CTO", match: 90, description: "Visionnaire technique : arbitre les choix technologiques critiques." },
+      { title: "Software Engineer (Fullstack)", match: 98, description: "Forgeron du code : conçoit et maintient le coeur battant des applications." },
+      { title: "Cybersecurity Expert", match: 90, description: "Gardien numérique : anticipe les menaces et blinde l'intégrité des infrastructures." },
       { title: "DevOps Engineer", match: 85, description: "Maître de l'automatisation : assure la stabilité et la vitesse de déploiement." }
     ],
-    salaryRange: "350.000 - 2.500.000 CFA / mois",
+    salaryRange: "150.000 - 4.000.000 CFA / mois",
     roadmap: [
       { year: 1, goal: "Maîtrise du Code", milestones: ["Algorithmique", "Data Structures", "Architecture"] },
       { year: 2, goal: "Expertise Stack", milestones: ["Cloud Providers", "Microservices", "Security"] },
@@ -388,10 +412,10 @@ export const PROFILES: Record<string, Profile> = {
     description: "Vous transformez le chaos des données en clarté stratégique.",
     jobs: [
       { title: "Data Analyst", match: 96, description: "Détecteur de signaux : révèle les tendances cachées derrière les chiffres." },
-      { title: "Business Analyst", match: 92, description: "Optimisateur de performance : aligne les flux de données sur les revenus." },
-      { title: "Data Scientist", match: 88, description: "Ingénieur du futur : crée des modèles prédictifs pour anticiper le marché." }
+      { title: "Data Scientist", match: 92, description: "Optimisateur de performance : aligne les flux de données sur les revenus." },
+      { title: "Machine Learning Engineer", match: 88, description: "Ingénieur du futur : crée des modèles prédictifs pour anticiper le marché." }
     ],
-    salaryRange: "450.000 - 1.800.000 CFA / mois",
+    salaryRange: "150.000 - 3.000.000 CFA / mois",
     roadmap: [
       { year: 1, goal: "Data Literacy", milestones: ["SQL", "Excel Expert", "Python"] },
       { year: 2, goal: "Advanced Analytics", milestones: ["DataViz", "Statistiques", "ETL"] },
@@ -404,9 +428,9 @@ export const PROFILES: Record<string, Profile> = {
     jobs: [
       { title: "Product Designer", match: 97, description: "Styliste d'usage : fusionne esthétique et utilité pour séduire l'utilisateur." },
       { title: "UX Researcher", match: 91, description: "Explorateur d'empathie : décode les besoins profonds pour orienter le design." },
-      { title: "Art Director", match: 84, description: "Chef de l'image : impose une signature visuelle forte et cohérente." }
+      { title: "Motion Designer", match: 84, description: "Magicien du mouvement : donne vie aux interfaces via des animations et micro-interactions." }
     ],
-    salaryRange: "300.000 - 1.200.000 CFA / mois",
+    salaryRange: "150.000 - 1.500.000 CFA / mois",
     roadmap: [
       { year: 1, goal: "Visual Design", milestones: ["UI Design", "Figma", "Typography"] },
       { year: 2, goal: "UX & Research", milestones: ["User Testing", "Personas", "Wireframing"] },

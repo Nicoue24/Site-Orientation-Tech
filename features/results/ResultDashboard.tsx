@@ -26,7 +26,13 @@ import {
   ExternalLink,
   MessageCircle,
   PhoneCall,
-  School
+  School,
+  Code,
+  Palette,
+  BarChart3,
+  Users,
+  Megaphone,
+  Shield
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -260,6 +266,17 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
     return found || null;
   };
 
+  const getSkillIcon = (skill: string) => {
+    const s = skill.toLowerCase();
+    if (s.includes('react') || s.includes('node') || s.includes('code') || s.includes('python') || s.includes('flutter')) return <Code className="w-3 h-3 text-accent" />;
+    if (s.includes('data') || s.includes('sql') || s.includes('analyt') || s.includes('stat')) return <BarChart3 className="w-3 h-3 text-accent" />;
+    if (s.includes('design') || s.includes('ui') || s.includes('ux') || s.includes('figma') || s.includes('palette')) return <Palette className="w-3 h-3 text-accent" />;
+    if (s.includes('manage') || s.includes('lead') || s.includes('scrum') || s.includes('team') || s.includes('users')) return <Users className="w-3 h-3 text-accent" />;
+    if (s.includes('cyber') || s.includes('secu') || s.includes('pentest') || s.includes('shield')) return <Shield className="w-3 h-3 text-accent" />;
+    if (s.includes('market') || s.includes('ads') || s.includes('seo') || s.includes('pitch')) return <Megaphone className="w-3 h-3 text-accent" />;
+    return <CheckCircle2 className="w-3 h-3 text-accent" />;
+  };
+
   const handleDownloadJPG = async () => {
     if (!dashboardRef.current) return;
     setIsExporting(true);
@@ -411,14 +428,17 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
                   </div>
                   
                   <div className="space-y-4 mt-auto">
-                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Compétences à acquérir</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Compétences Clés</span>
+                      <Zap className="w-3 h-3 text-accent animate-pulse" />
+                    </div>
                     <div className="space-y-3">
                       {skills.map((skill, sIndex) => (
-                        <div key={sIndex} className="flex items-center gap-3 group/skill">
-                          <div className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
-                            <CheckCircle2 className="w-3 h-3 text-accent" />
+                        <div key={sIndex} className="flex items-center gap-3 group/skill p-2 bg-white/5 rounded-xl border border-white/5 hover:border-accent/20 transition-all">
+                          <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
+                            {getSkillIcon(skill)}
                           </div>
-                          <span className="text-xs text-white/70 font-bold">{skill}</span>
+                          <span className="text-xs text-white/80 font-bold">{skill}</span>
                         </div>
                       ))}
                     </div>
