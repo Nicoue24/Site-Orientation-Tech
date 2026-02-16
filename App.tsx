@@ -42,6 +42,29 @@ const App: React.FC = () => {
   const [generatedQuestions, setGeneratedQuestions] = useState<Question[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
 
+  const sendDataToWebhook = async (currentUser: User, currentScores: ScoreSet, persona: string) => {
+    const keys = Object.keys(currentScores) as (keyof ScoreSet)[];
+    const dominantKey = keys.reduce((a, b) => (currentScores[a] > currentScores[b] ? a : b));
+    
+    const payload = {
+      nom: currentUser.email.split('@')[0],
+      email: currentUser.email,
+      niveau_scolaire: persona,
+      profil_dominant: dominantKey,
+      scores_des_8_forces: currentScores
+    };
+
+    try {
+      await fetch('https://hook.eu1.make.com/ke23stji62oucyfjltpioh9217gf2cqb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error("Erreur Webhook:", error);
+    }
+  };
+
   const startPersonaSelection = () => {
     setStep(AppStep.PersonaSelection);
   };
@@ -56,20 +79,19 @@ const App: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const personaContext = {
-        college: "collégien (découverte)",
-        lycee: "lycéen (orientation BAC)",
-        etudiant: "étudiant (spécialisation)",
-        reconversion: "adulte en reconversion (recherche d'emploi)"
+        college: "collégien (12-15 ans, découverte ludique)",
+        lycee: "lycéen (15-18 ans, orientation BAC)",
+        etudiant: "étudiant (supérieur, spécialisation)",
+        reconversion: "adulte (reconversion professionnelle)"
       }[selectedPersona as keyof typeof personaContext] || "étudiant";
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: `Génère un quiz de diagnostic d'aptitude technologique de ${questionsCount} questions pour un profil : ${personaContext}. 
-        Le mode est "${mode}".
-        Chaque question doit être une mise en situation professionnelle réaliste ancrée dans le contexte du Bénin.
-        Propose 4 options (A, B, C, D) par question attribuant des points aux forces: Com, Tech, Créa, Struct, Lead, Ana, Rel, Vision.
-        Retourne UNIQUEMENT un JSON.`,
+        model: 'gemini-3-flash-preview',
+        contents: `Génère un quiz technique de ${questionsCount} questions pour un profil : ${personaContext}. 
+        Mode: ${mode}. Les questions doivent être des mises en situation au Bénin (ex: Cotonou, Sèmè City).
+        Répartis les points (0 à 5) pour les forces: Com, Tech, Créa, Struct, Lead, Ana, Rel, Vision.`,
         config: {
+          thinkingConfig: { thinkingBudget: 500 },
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -100,24 +122,28 @@ const App: React.FC = () => {
                               Ana: { type: Type.INTEGER },
                               Rel: { type: Type.INTEGER },
                               Vision: { type: Type.INTEGER }
-                            }
+                            },
+                            required: ["Com", "Tech", "Créa", "Struct", "Lead", "Ana", "Rel", "Vision"]
                           }
-                        }
+                        },
+                        required: ["id", "text", "points"]
                       }
                     }
-                  }
+                  },
+                  required: ["id", "title", "category", "options"]
                 }
               }
-            }
+            },
+            required: ["questions"]
           }
         }
       });
 
-      const data = JSON.parse(response.text || '{"questions":[]}');
+      const data = JSON.parse(response.text);
       setGeneratedQuestions(data.questions);
       setStep(AppStep.Quiz);
     } catch (error) {
-      console.error("AI Error:", error);
+      console.error("Erreur IA:", error);
       alert("Erreur lors de la préparation du quiz. Veuillez réessayer.");
       setStep(AppStep.Home);
     }
@@ -126,6 +152,7 @@ const App: React.FC = () => {
   const handleQuizFinish = (finalScores: ScoreSet) => {
     setScores(finalScores);
     if (user.isLoggedIn) {
+      sendDataToWebhook(user, finalScores, selectedPersona || 'Inconnu');
       setStep(AppStep.Dashboard);
     } else {
       setStep(AppStep.AuthGate);
@@ -133,21 +160,21 @@ const App: React.FC = () => {
   };
 
   const handleLoginSuccess = (email: string) => {
-    setUser({ email, isLoggedIn: true });
+    const newUser = { email, isLoggedIn: true };
+    setUser(newUser);
+    if (scores) {
+      sendDataToWebhook(newUser, scores, selectedPersona || 'Inconnu');
+    }
     setStep(AppStep.Dashboard);
   };
 
   const navigateToResults = () => {
-    if (scores) {
-      setStep(AppStep.Dashboard);
-    } else {
-      setStep(AppStep.AuthGate);
-    }
+    if (scores) setStep(AppStep.Dashboard);
+    else setStep(AppStep.AuthGate);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white font-inter selection:bg-accent/30">
-      {/* Header */}
       <header className="p-4 border-b border-white/5 sticky top-0 bg-[#0f172a]/80 backdrop-blur-xl z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setStep(AppStep.Home)}>
@@ -162,21 +189,19 @@ const App: React.FC = () => {
           <div className="flex items-center gap-6">
             {user.isLoggedIn ? (
               <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,1)]"></div>
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
                 <span className="text-xs font-bold text-white/70">{user.email}</span>
               </div>
             ) : (
-              <button onClick={() => setStep(AppStep.AuthGate)} className="px-5 py-2 bg-accent hover:bg-accent/90 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-accent/20 transition-all active:scale-95">Connexion</button>
+              <button onClick={() => setStep(AppStep.AuthGate)} className="px-5 py-2 bg-accent hover:bg-accent/90 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Connexion</button>
             )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8 flex flex-col">
         {step === AppStep.Home && (
           <div className="flex-1 flex flex-col py-12 gap-16 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            {/* Hero */}
             <div className="text-center space-y-8 relative">
               <div className="absolute -inset-20 bg-accent/10 rounded-full blur-[120px] pointer-events-none"></div>
               <h1 className="relative text-6xl md:text-8xl font-sora font-black tracking-tighter leading-tight">
@@ -188,46 +213,17 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            {/* Main Navigation Cards - "Les bails" */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl mx-auto">
-              <HomeCard 
-                title="Accueil" 
-                desc="Le point de départ de ton aventure vers le succès numérique."
-                icon={<Layout />}
-                onClick={() => setStep(AppStep.Home)}
-                highlight
-              />
-              <HomeCard 
-                title="Métiers" 
-                desc="Explore le catalogue des rôles les plus demandés au Bénin."
-                icon={<Briefcase />}
-                onClick={() => setStep(AppStep.Roles)}
-              />
-              <HomeCard 
-                title="Quiz" 
-                desc="Passe notre diagnostic intelligent pour trouver ta voie."
-                icon={<Target />}
-                onClick={startPersonaSelection}
-                accent
-              />
-              <HomeCard 
-                title="Mes résultats" 
-                desc="Consulte ton analyse personnalisée et ton plan d'action."
-                icon={<BarChart3 />}
-                onClick={navigateToResults}
-              />
+              <HomeCard title="Accueil" desc="Le point de départ." icon={<Layout />} onClick={() => setStep(AppStep.Home)} highlight />
+              <HomeCard title="Métiers" desc="Explore le catalogue." icon={<Briefcase />} onClick={() => setStep(AppStep.Roles)} />
+              <HomeCard title="Quiz" desc="Diagnostic intelligent." icon={<Target />} onClick={startPersonaSelection} accent />
+              <HomeCard title="Mes résultats" desc="Analyse personnalisée." icon={<BarChart3 />} onClick={navigateToResults} />
             </div>
           </div>
         )}
 
-        {step === AppStep.PersonaSelection && (
-          <PersonaSelector onConfirm={handlePersonaConfirm} />
-        )}
-
-        {step === AppStep.QuizModeSelection && (
-          <QuizModeSelector onSelect={startDiagnostic} />
-        )}
-
+        {step === AppStep.PersonaSelection && <PersonaSelector onConfirm={handlePersonaConfirm} />}
+        {step === AppStep.QuizModeSelection && <QuizModeSelector onSelect={startDiagnostic} />}
         {step === AppStep.AIGeneration && (
           <div className="flex-1 flex flex-col items-center justify-center gap-10 py-20 text-center animate-in fade-in duration-1000">
              <div className="relative w-32 h-32">
@@ -241,55 +237,30 @@ const App: React.FC = () => {
                 <div className="w-64 h-1.5 bg-white/5 rounded-full mx-auto overflow-hidden border border-white/10">
                    <div className="h-full bg-accent animate-[loading_2s_ease-in-out_infinite]"></div>
                 </div>
-                <p className="text-xs text-white/30 uppercase tracking-[0.4em]">Analyse personnalisée {generatedQuestions.length > 0 ? '(Assemblage)' : '(Génération)'}</p>
+                <p className="text-xs text-white/30 uppercase tracking-[0.4em]">Optimisation en cours</p>
              </div>
           </div>
         )}
-
-        {step === AppStep.Quiz && (
-          <QuizComponent 
-            onFinish={handleQuizFinish} 
-            customQuestions={generatedQuestions} 
-            roleTitle={`Diagnostic ${selectedPersona}`} 
-          />
-        )}
-
-        {step === AppStep.Roles && (
-          <RolesExplorer />
-        )}
-
+        {step === AppStep.Quiz && <QuizComponent onFinish={handleQuizFinish} customQuestions={generatedQuestions} roleTitle={`Diagnostic ${selectedPersona}`} />}
+        {step === AppStep.Roles && <RolesExplorer />}
         {step === AppStep.AuthGate && (
           <div className="flex-1 flex flex-col items-center justify-center py-10 animate-in zoom-in-95 duration-500">
-            <div className="w-full max-w-md bg-card p-12 rounded-[3rem] border border-white/5 shadow-2xl flex flex-col items-center gap-8 relative overflow-hidden">
-              <div className="p-5 bg-accent/10 rounded-3xl border border-accent/20">
-                <Lock className="w-10 h-10 text-accent" />
-              </div>
-              <div className="text-center space-y-4">
-                <h2 className="text-3xl font-sora font-black">Accès Restreint</h2>
-                <p className="text-white/40 leading-relaxed">
-                  Inscris-toi pour débloquer tes métiers recommandés et ton plan de carrière personnalisé.
-                </p>
-              </div>
+            <div className="w-full max-w-md bg-card p-12 rounded-[3rem] border border-white/5 shadow-2xl flex flex-col items-center gap-8">
+              <Lock className="w-10 h-10 text-accent" />
+              <h2 className="text-3xl font-sora font-black text-center">Accès Restreint</h2>
               <AuthModal onAuthSuccess={handleLoginSuccess} />
             </div>
           </div>
         )}
-
-        {step === AppStep.Dashboard && scores && (
-          <ResultDashboard scores={scores} user={user} />
-        )}
-
-        {step === AppStep.Universities && (
-          <UniversitiesExplorer />
-        )}
+        {step === AppStep.Dashboard && scores && <ResultDashboard scores={scores} user={user} />}
+        {step === AppStep.Universities && <UniversitiesExplorer />}
       </main>
 
-      {/* Navigation */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-slate-900/90 backdrop-blur-2xl border border-white/20 rounded-[3rem] z-50 flex items-center gap-8 md:gap-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-slate-900/90 backdrop-blur-2xl border border-white/20 rounded-[3rem] z-50 flex items-center gap-8 md:gap-12 shadow-2xl">
         <NavItem active={step === AppStep.Home} icon={<Layout />} label="Accueil" onClick={() => setStep(AppStep.Home)} />
         <NavItem active={step === AppStep.Roles} icon={<Briefcase />} label="Métiers" onClick={() => setStep(AppStep.Roles)} />
         <NavItem active={[AppStep.PersonaSelection, AppStep.QuizModeSelection, AppStep.AIGeneration, AppStep.Quiz].includes(step)} icon={<Target />} label="Quiz" onClick={startPersonaSelection} />
-        <NavItem active={[AppStep.Dashboard, AppStep.AuthGate].includes(step)} icon={<BarChart3 />} label="Mes résultats" onClick={navigateToResults} />
+        <NavItem active={[AppStep.Dashboard, AppStep.AuthGate].includes(step)} icon={<BarChart3 />} label="Résultats" onClick={navigateToResults} />
         <NavItem active={step === AppStep.Universities} icon={<School />} label="Universités" onClick={() => setStep(AppStep.Universities)} />
       </nav>
 
@@ -304,57 +275,24 @@ const App: React.FC = () => {
   );
 };
 
-const HomeCard: React.FC<{ 
-  title: string; 
-  desc: string; 
-  icon: React.ReactNode; 
-  onClick: () => void; 
-  highlight?: boolean; 
-  accent?: boolean 
-}> = ({ title, desc, icon, onClick, highlight, accent }) => (
-  <button 
-    onClick={onClick}
-    className={`group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden ${
-      accent 
-        ? 'bg-accent/10 border-accent/30 hover:bg-accent/20' 
-        : highlight 
-          ? 'bg-white/5 border-white/20 hover:bg-white/10' 
-          : 'bg-card/40 border-white/5 hover:border-white/10 hover:bg-card/60'
-    }`}
-  >
+const HomeCard: React.FC<{ title: string; desc: string; icon: React.ReactNode; onClick: () => void; highlight?: boolean; accent?: boolean }> = ({ title, desc, icon, onClick, highlight, accent }) => (
+  <button onClick={onClick} className={`group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden ${accent ? 'bg-accent/10 border-accent/30' : highlight ? 'bg-white/5 border-white/20' : 'bg-card/40 border-white/5 hover:bg-card/60'}`}>
     <div className="relative z-10 flex flex-col gap-6">
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3 ${
-        accent ? 'bg-accent text-white' : 'bg-white/10 text-white'
-      }`}>
-        {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-7 h-7' })}
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${accent ? 'bg-accent text-white' : 'bg-white/10'}`}>
+        {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-6 h-6' })}
       </div>
       <div className="space-y-2">
-        <h3 className="text-2xl font-sora font-black text-white flex items-center gap-2">
-          "{title}" <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-        </h3>
-        <p className="text-sm text-white/50 leading-relaxed font-medium">
-          {desc}
-        </p>
+        <h3 className="text-2xl font-sora font-black text-white flex items-center gap-2">{title} <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all" /></h3>
+        <p className="text-sm text-white/50 leading-relaxed">{desc}</p>
       </div>
     </div>
-    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 blur-3xl rounded-full"></div>
   </button>
 );
 
 const NavItem: React.FC<{ active: boolean; icon: React.ReactNode; label: string; onClick: () => void }> = ({ active, icon, label, onClick }) => (
-  <button 
-    onClick={onClick}
-    className={`flex flex-col items-center gap-1.5 group transition-all duration-300 relative ${active ? 'scale-110' : 'hover:scale-105'}`}
-  >
-    <div className={`transition-all duration-300 ${active ? 'text-accent' : 'text-white/40 group-hover:text-white'}`}>
-      {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5' })}
-    </div>
-    <span className={`text-[9px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${active ? 'text-accent' : 'text-white/40 group-hover:text-white'}`}>
-      {label}
-    </span>
-    {active && (
-      <div className="absolute -bottom-2 w-1 h-1 bg-accent rounded-full shadow-[0_0_8px_rgba(59,130,246,1)]"></div>
-    )}
+  <button onClick={onClick} className={`flex flex-col items-center gap-1.5 group transition-all duration-300 ${active ? 'scale-110 text-accent' : 'text-white/40 hover:text-white'}`}>
+    {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5' })}
+    <span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
   </button>
 );
 

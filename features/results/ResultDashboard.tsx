@@ -87,7 +87,7 @@ const RadialProgress: React.FC<{ percentage: number; label: string; color?: stri
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            className="fill-none transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+            className="fill-none transition-all duration-1000 ease-out"
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
@@ -113,26 +113,21 @@ const UniversityCard: React.FC<{ uni: University }> = ({ uni }) => {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Fournis uniquement l'adresse physique exacte, le numéro de téléphone officiel et l'adresse email de contact de l'université ${uni.name} au Bénin. Formate la réponse de manière lisible.`,
-        config: {
-          tools: [{ googleSearch: {} }]
-        }
+        contents: `Fournis uniquement l'adresse physique exacte, le numéro de téléphone officiel et l'adresse email de contact de l'université ${uni.name} au Bénin.`,
+        config: { tools: [{ googleSearch: {} }] }
       });
-      setLiveInfo(response.text || "Informations non trouvées.");
-
+      setLiveInfo(response.text || "Non trouvé.");
+      
       const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       if (chunks) {
         const extracted = chunks
           .filter((c: any) => c.web && c.web.uri)
-          .map((c: any) => ({
-            title: c.web.title || c.web.uri,
-            uri: c.web.uri
-          }));
+          .map((c: any) => ({ title: c.web.title || c.web.uri, uri: c.web.uri }));
         setSources(extracted);
       }
     } catch (err) {
       console.error(err);
-      setLiveInfo("Erreur lors de la recherche.");
+      setLiveInfo("Erreur de recherche.");
     } finally {
       setIsSearching(false);
     }
@@ -151,7 +146,6 @@ const UniversityCard: React.FC<{ uni: University }> = ({ uni }) => {
         <button 
           onClick={fetchLatestInfo}
           disabled={isSearching}
-          title="Mettre à jour avec Google Search"
           className="p-2.5 rounded-xl bg-white/5 hover:bg-accent text-white/30 hover:text-white transition-all disabled:opacity-50"
         >
           {isSearching ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
@@ -159,35 +153,19 @@ const UniversityCard: React.FC<{ uni: University }> = ({ uni }) => {
       </div>
       
       {liveInfo ? (
-        <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl animate-in fade-in slide-in-from-top-2">
+        <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl animate-in fade-in">
            <div className="flex items-center gap-2 mb-2 text-[9px] font-black text-accent uppercase tracking-widest">
-              <Globe className="w-3 h-3" /> Données en temps réel
+              <Globe className="w-3 h-3" /> Données Google Search
            </div>
-           <p className="text-xs text-white/80 leading-relaxed font-medium mb-4 whitespace-pre-wrap">{liveInfo}</p>
-           
+           <p className="text-xs text-white/80 leading-relaxed font-medium mb-2 whitespace-pre-wrap">{liveInfo}</p>
            {sources.length > 0 && (
-             <div className="mt-4 pt-3 border-t border-accent/20">
-               <span className="text-[8px] font-black text-white/40 uppercase tracking-widest block mb-2">Sources vérifiées :</span>
-               <div className="space-y-1.5">
-                 {sources.slice(0, 3).map((source, idx) => (
-                   <a 
-                     key={idx} 
-                     href={source.uri} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="flex items-center gap-2 text-[10px] text-accent hover:underline group/link"
-                   >
-                     <ExternalLink className="w-3 h-3" />
-                     <span className="truncate">{source.title}</span>
-                   </a>
-                 ))}
-               </div>
+             <div className="space-y-1">
+               {sources.slice(0, 2).map((s, i) => (
+                 <a key={i} href={s.uri} target="_blank" className="text-[10px] text-accent block truncate underline">{s.title}</a>
+               ))}
              </div>
            )}
-
-           <button onClick={() => { setLiveInfo(null); setSources([]); }} className="mt-4 text-[9px] font-bold text-white/30 hover:text-white uppercase tracking-widest">
-              Réinitialiser
-           </button>
+           <button onClick={() => setLiveInfo(null)} className="mt-2 text-[9px] font-bold text-white/30 hover:text-white uppercase tracking-widest">Retour</button>
         </div>
       ) : (
         <div className="space-y-4">
@@ -200,35 +178,15 @@ const UniversityCard: React.FC<{ uni: University }> = ({ uni }) => {
                 <span className="text-xs text-white/80 leading-relaxed font-medium">{uni.location}</span>
               </div>
            </div>
-           <div className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                <Mail className="w-4 h-4 text-accent" />
-              </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Email</span>
-                <span className="text-xs text-white/80 truncate font-medium">{uni.email}</span>
-              </div>
-           </div>
         </div>
       )}
 
-      {/* Boutons d'action demandés */}
       <div className="grid grid-cols-2 gap-3 mt-auto">
-        <a 
-          href={`tel:${cleanPhone(uni.phone)}`}
-          className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-all active:scale-95"
-        >
-          <PhoneCall className="w-3.5 h-3.5 text-accent" />
-          Appeler
+        <a href={`tel:${cleanPhone(uni.phone)}`} className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-[10px] font-black text-white uppercase tracking-widest transition-all">
+          <PhoneCall className="w-3.5 h-3.5 text-accent" /> Appeler
         </a>
-        <a 
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest transition-all active:scale-95"
-        >
-          <MessageCircle className="w-3.5 h-3.5" />
-          WhatsApp
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest transition-all">
+          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
         </a>
       </div>
 
@@ -341,7 +299,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 w-full max-w-5xl">
               <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/5 backdrop-blur-sm">
                 <TrendingUp className="w-6 h-6 text-accent mx-auto mb-3" />
-                <p className="text-[10px] text-white/20 uppercase font-black tracking-widest mb-2">Salaire Moyen</p>
+                <p className="text-[10px] text-white/20 uppercase font-black tracking-widest mb-2">Salaire Potentiel</p>
                 <p className="text-2xl font-black text-white">{profile.salaryRange}</p>
               </div>
               <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/5 backdrop-blur-sm">
@@ -351,8 +309,8 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
               </div>
               <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/5 backdrop-blur-sm">
                 <Award className="w-6 h-6 text-orange-400 mx-auto mb-3" />
-                <p className="text-[10px] text-white/20 uppercase font-black tracking-widest mb-2">Rarete du Profil</p>
-                <p className="text-2xl font-black text-white">Élevée</p>
+                <p className="text-[10px] text-white/20 uppercase font-black tracking-widest mb-2">Indice Rareté</p>
+                <p className="text-2xl font-black text-white">Élevé</p>
               </div>
             </div>
           </div>
@@ -361,13 +319,13 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
         <div className="bg-card/30 backdrop-blur-xl p-12 rounded-[4rem] border border-white/5">
           <div className="flex flex-col items-center gap-3 mb-16 text-center">
             <h3 className="text-3xl font-sora font-black text-white tracking-tight">Analyse des 8 Forces</h3>
-            <p className="text-xs text-white/20 uppercase tracking-[0.5em] font-black">Répartition psychométrique de vos talents</p>
+            <p className="text-xs text-white/20 uppercase tracking-[0.5em] font-black">Psychométrie de vos talents au Bénin</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-10">
             {(['Com', 'Tech', 'Créa', 'Struct', 'Lead', 'Ana', 'Rel', 'Vision'] as const).map((key) => (
               <RadialProgress 
                 key={key} 
-                percentage={Math.min(Math.round(((scores[key] || 0) / 50) * 100), 100)} 
+                percentage={Math.min(Math.round(((scores[key] || 0) / 45) * 100), 100)} 
                 label={key} 
                 color={STRENGTH_COLORS[key]}
               />
@@ -381,14 +339,14 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
             <div className="w-16 h-16 rounded-[1.5rem] bg-accent/10 flex items-center justify-center border border-accent/20 mb-2">
               <Cpu className="w-8 h-8 text-accent animate-pulse" />
             </div>
-            <h3 className="text-3xl font-sora font-black text-white">Métiers Recommandés</h3>
+            <h3 className="text-3xl font-sora font-black text-white">Métiers Recommandés (Marché Béninois)</h3>
             <p className="text-xs text-white/20 uppercase tracking-[0.5em] font-black">Top 3 des carrières faites pour vous</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {profile.jobs.map((job: JobMatch, index: number) => {
               const roleData = getRoleData(job.title);
-              const skills = roleData ? roleData.skills.slice(0, 3) : ["Analyse", "Communication", "Autonomie"];
+              const skills = roleData ? roleData.skills.slice(0, 3) : ["Communication", "Analyse", "Adaptabilité"];
               const finalDescription = roleData ? roleData.description : job.description;
               const finalSalary = roleData ? roleData.salary : profile.salaryRange;
               const finalIcon = roleData ? roleData.icon : 'Briefcase';
@@ -410,31 +368,31 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
                   
                   <div className="mb-6 p-5 bg-accent/5 rounded-[1.5rem] border border-accent/10 relative">
                     <div className="absolute top-0 left-4 -translate-y-1/2 px-3 py-0.5 bg-accent text-[8px] font-black text-white uppercase tracking-widest rounded-full">
-                      Rôle Clé
+                      Résumé
                     </div>
                     <p className="text-xs text-white/80 leading-relaxed font-bold italic">
                       "{finalDescription}"
                     </p>
                   </div>
 
-                  <div className="mb-8 p-5 bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center gap-4 group/salary">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0 group-hover/salary:rotate-12 transition-transform">
+                  <div className="mb-8 p-5 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
                       <Banknote className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="flex flex-col">
-                       <span className="text-[8px] font-black text-emerald-400/50 uppercase tracking-widest">Salaire Estimé</span>
+                       <span className="text-[8px] font-black text-emerald-400/50 uppercase tracking-widest">Salaire Estimé (Bénin)</span>
                        <span className="text-sm font-black text-white">{finalSalary}</span>
                     </div>
                   </div>
                   
                   <div className="space-y-4 mt-auto">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
                       <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Compétences Clés</span>
                       <Zap className="w-3 h-3 text-accent animate-pulse" />
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {skills.map((skill, sIndex) => (
-                        <div key={sIndex} className="flex items-center gap-3 group/skill p-2 bg-white/5 rounded-xl border border-white/5 hover:border-accent/20 transition-all">
+                        <div key={sIndex} className="flex items-center gap-3 p-2 bg-white/5 rounded-xl border border-white/5 hover:border-accent/20 transition-all">
                           <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
                             {getSkillIcon(skill)}
                           </div>
@@ -485,7 +443,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
               <h3 className="text-2xl font-sora font-black">Où se former au Bénin ?</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
-               {UNIVERSITIES.slice(0, 10).map(uni => (
+               {UNIVERSITIES.slice(0, 4).map(uni => (
                  <UniversityCard key={uni.id} uni={uni} />
                ))}
             </div>
@@ -493,7 +451,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ scores, user }) => {
         </div>
 
         <div className="text-center pt-12 border-t border-white/5 opacity-20">
-          <p className="text-[10px] uppercase tracking-[0.8em] font-black">Orientation Tech Bénin — Version 2.5</p>
+          <p className="text-[10px] uppercase tracking-[0.8em] font-black">Orientation Tech Bénin — Version 2.5 — Marché Local</p>
         </div>
       </div>
     </div>
